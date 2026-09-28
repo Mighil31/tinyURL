@@ -15,10 +15,11 @@ public class LinkRepository {
     }
 
     /** @throws org.springframework.dao.DuplicateKeyException if the code already exists */
-    public void insert(String code, String longUrl) {
-        jdbc.sql("INSERT INTO links (code, long_url) VALUES (:code, :longUrl)")
+    public void insert(String code, String longUrl, String owner) {
+        jdbc.sql("INSERT INTO links (code, long_url, owner_key_fingerprint) VALUES (:code, :longUrl, :owner)")
                 .param("code", code)
                 .param("longUrl", longUrl)
+                .param("owner", owner)
                 .update();
     }
 

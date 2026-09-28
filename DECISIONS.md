@@ -16,11 +16,18 @@ One entry per decision I make. Write it when I make it, not at the end.
 | 10 | DB creds via `databases:` attachment + bindable vars in app.yaml | Manual SECRET envs | No secrets handled by hand | Uses `doadmin`; production would use a least-privilege DB user |
 | 11 | Duplicate long URL → new code every time | Reuse per key; reuse globally | No lookup on create, per-link stats | Table grows with duplicates; dedupe per key if storage matters |
 | 12 | `POST /links` {url} → 201 + Location, {code, shortUrl, longUrl}; base from `BASE_URL` | 200 {code, shortUrl} | REST-correct, echoes the normalized URL | — |
+| 13 | API keys from `API_KEYS` SECRET env (`key:tier,...`), parsed into memory at startup | DB table of hashed keys; plaintext in repo | Public repo: no key material committed; zero lookups | Key rotation = redeploy; no per-key metadata. At 10× tenants: DB table + cache, hashed keys |
+| 14 | Sliding window log limiter (exact N per any 60s) | Fixed window (2× burst at boundary); token bucket (~2N−1 in a window); sliding counter (approx.) | Exact semantics, Retry-After = oldest + 60s − now; ≤100 timestamps/key | Memory O(limit) per key; fine for 100/min, not for 10k/min (then token bucket or sliding counter) |
+| 15 | Limiter state in-memory per instance | Postgres; Redis | Zero latency, no deps; correct with instance_count 1 | Resets on redeploy; >1 instance multiplies the effective limit. At 10×: Redis (sorted set / Lua) |
+| 16 | 429 + `Retry-After` (whole seconds, rounded up) + `{error, retryAfterSeconds}` | Also RateLimit-* headers on every response | Standard, exactly what the prompt asks | Clients can't pace proactively; add RateLimit headers |
+| 17 | 401 for missing and unknown key, with `WWW-Authenticate` | 401 missing / 403 unknown | Doesn't reveal which keys exist | — |
+| 18 | Quota consumed by every authenticated request that isn't rate-limited (400s count, 429s don't) | Only successful creations (reserve/refund) | One atomic tryAcquire, no overshoot race; denied attempts can't cause permanent lockout | Clients with buggy input burn quota |
 
 ## Hand-written core
-- Piece:
-- Written by me / finished by Claude (why):
-- What Claude's review found:
+- Piece: `SlidingWindowRateLimiter.tryAcquire` (sliding window log, per-key, injected Clock)
+- Written by me / finished by Claude (why): **Written by Claude.** Claude wrote the interface + 11 spec tests first; I then asked Claude to implement it rather than doing the 25-min attempt myself. I review it instead.
+- Edge cases handled (for my review): clock read *inside* the per-key lock so each deque stays sorted under concurrency; expiry at exactly `t + window`; denied attempts not recorded; limit lowered below current log size → retryAfter waits for the (size−limit+1)-th oldest entry, not the oldest (test added: `loweredLimitWaitsUntilEnoughEntriesExpire`).
+- Known limits: uses wall clock (`Clock.systemUTC`), so an NTP step backwards can stretch a window (a monotonic `System.nanoTime` source fixes it); the per-key map is never evicted (bounded by the seeded keys, since limiting runs only after auth).
 
 ## With more time
 - Split `/healthz` into `/health/live` (no deps) and `/health/ready` (pings DB). Liveness must never depend on the DB.
@@ -32,6 +39,8 @@ One entry per decision I make. Write it when I make it, not at the end.
 ## Not verified / skipped
 - Skipped: repository tests against a real Postgres (Testcontainers). Instead verified by hand: local Postgres 18 in Docker, create → redirect → restart → redirect still works.
 - Removed the generated `@SpringBootTest` contextLoads test: it needs a live DB.
+- `doctl apps spec validate` rejects specs containing encrypted (`EV[...]`) secrets ("must not be encrypted before app is created"), so `.do/app.yaml` is now checked with `--schema-only`; full validation happens in `doctl apps update` against the real app.
+- API keys: generated with `openssl rand -hex 16`, pushed once via a temp spec outside the repo, then the `EV[...]` ciphertext DO returned was committed. Plaintext lives only in the local scratchpad; handed to reviewers out of band.
 
 ## Budget (say it out loud at minute 0)
 ~15 min plan · ~120 min build in phases (incl. ~25 min hand-written core) · ~25 min deploy + verify · ~20 min final read-through (`git log -p`, DECISIONS.md closed)

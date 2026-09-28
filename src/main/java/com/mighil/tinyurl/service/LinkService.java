@@ -24,12 +24,13 @@ public class LinkService {
 
     public record Link(String code, String longUrl) {}
 
-    public Link create(String rawUrl) {
+    /** @param owner fingerprint of the creating API key (see {@link ApiKeys#fingerprint}) */
+    public Link create(String rawUrl, String owner) {
         String longUrl = validator.validate(rawUrl).toString();
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String code = codes.next();
             try {
-                links.insert(code, longUrl);
+                links.insert(code, longUrl, owner);
                 return new Link(code, longUrl);
             } catch (DuplicateKeyException collision) {
                 // extremely rare at 62^7; try another code

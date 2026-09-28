@@ -25,26 +25,26 @@ class LinkServiceTest {
     @Test
     void retriesWithANewCodeOnCollision() {
         when(codes.next()).thenReturn("aaaaaaa", "bbbbbbb");
-        doThrow(new DuplicateKeyException("dup")).when(repo).insert("aaaaaaa", "https://example.com");
+        doThrow(new DuplicateKeyException("dup")).when(repo).insert("aaaaaaa", "https://example.com", "owner");
 
-        LinkService.Link link = service.create("https://example.com");
+        LinkService.Link link = service.create("https://example.com", "owner");
 
         assertThat(link.code()).isEqualTo("bbbbbbb");
-        verify(repo).insert("bbbbbbb", "https://example.com");
+        verify(repo).insert("bbbbbbb", "https://example.com", "owner");
     }
 
     @Test
     void givesUpAfterMaxAttempts() {
         when(codes.next()).thenReturn("aaaaaaa");
-        doThrow(new DuplicateKeyException("dup")).when(repo).insert(anyString(), anyString());
+        doThrow(new DuplicateKeyException("dup")).when(repo).insert(anyString(), anyString(), anyString());
 
-        assertThatThrownBy(() -> service.create("https://example.com")).isInstanceOf(IllegalStateException.class);
-        verify(repo, times(LinkService.MAX_ATTEMPTS)).insert(anyString(), anyString());
+        assertThatThrownBy(() -> service.create("https://example.com", "owner")).isInstanceOf(IllegalStateException.class);
+        verify(repo, times(LinkService.MAX_ATTEMPTS)).insert(anyString(), anyString(), anyString());
     }
 
     @Test
     void invalidUrlNeverTouchesStorage() {
-        assertThatThrownBy(() -> service.create("ftp://example.com")).isInstanceOf(InvalidUrlException.class);
-        verify(repo, never()).insert(any(), any());
+        assertThatThrownBy(() -> service.create("ftp://example.com", "owner")).isInstanceOf(InvalidUrlException.class);
+        verify(repo, never()).insert(any(), any(), any());
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,8 +27,10 @@ public class LinkController {
     }
 
     @PostMapping("/links")
-    public ResponseEntity<LinkResponse> create(@RequestBody CreateLinkRequest request) {
-        Link link = links.create(request.url());
+    public ResponseEntity<LinkResponse> create(
+            @RequestAttribute(ApiKeyInterceptor.OWNER_ATTRIBUTE) String owner,
+            @RequestBody CreateLinkRequest request) {
+        Link link = links.create(request.url(), owner);
         return ResponseEntity.created(URI.create(baseUrl + "/links/" + link.code() + "/stats"))
                 .body(new LinkResponse(link.code(), baseUrl + "/" + link.code(), link.longUrl()));
     }

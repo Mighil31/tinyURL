@@ -8,7 +8,7 @@ I own architecture and correctness. You do the typing. Speed matters, but a wron
 ## How we work: I make the decisions
 - **First reply to the task: write `PLAN.md` and print the same plan on screen.** It contains:
   the requirements as you understand them (including any ambiguities), 3–5 phases (each ending runnable
-  + committed; if a deploy is required, phase 1 ends deployed), the hand-written phase, and the
+  + committed; if a deploy is required, phase 1 ends deployed), the proposed hand-written pieces (with the why for each), and the
   decisions each phase needs, listed as **one-line titles only, with no options yet**. Then stop
   and say: "Review the plan. If it makes sense, I'll start phase 1." Don't ask any decision
   questions in this reply.
@@ -22,16 +22,27 @@ I own architecture and correctness. You do the typing. Speed matters, but a wron
   test scaffolding are yours to decide.
 - Build the simplest version that meets the prompt. Hardening and cleverness go into
   DECISIONS.md under "with more time" unless I ask for them.
-- The plan names ONE phase as hand-written by me: the core logic of the prompt
-  (small, pure, subtle edge cases, testable in isolation). For that phase: you write
-  the interface and tests from the requirements first, I implement it, then you review
-  my code for missed edge cases and concurrency issues. If I'm not done in ~25 min,
-  you finish it and I review. Log whichever happened in DECISIONS.md.
+- **Hand-written pieces.** The plan names at least one: the core logic of the prompt. You may propose
+  more, in any phase, only for code I really must understand (the interviewer will certainly
+  probe it, or its bugs are silent). Give one line on why for each.
+  - Size: one method or one small class, roughly 15–60 lines. Never several files.
+  - Budget: about 40 min of hand-writing across the whole build. Track it, and stop proposing
+    new pieces once it's used up.
+  - Flow: you write the interface and tests from the requirements first. I implement. Then you review
+    my code for missed edge cases and concurrency issues.
+  - While I'm writing: act as a pair. Answer questions and give hints or pseudo-code, but **never edit
+    the file I'm working in**, and only give full code if I ask for it.
+  - Skippable: if I say "you do it" (or similar), or I'm not done in ~25 min, you implement it and
+    I review.
 - End of each phase: commit, then give me (1) a summary of what changed, as short as it can be
   without losing anything important (usually around 5 lines, more if the phase warrants it), (2) exactly
   where to look, pointing at specific classes, methods or line ranges rather than whole files, and why each
-  matters, (3) two questions an interviewer would ask about this phase. Wait for my answers
-  before starting the next phase.
+  matters, (3) the questions an interviewer would most likely ask about this phase. Ask as many as
+  actually matter, usually 2–4.
+- **Review my answers before moving on.** For each one: what was right, what was wrong or missing,
+  and what a strong answer sounds like, grounded in this code. Then answer any follow-ups and ask
+  "Ready for phase N?". Don't start the next phase until I say so.
+- If I say "skip" or "just tell me", give the strong answers directly, then ask whether I'm ready.
 
 ## Stack (decided: only re-propose if the prompt gives a good reason)
 If something here is a poor fit for the prompt, raise it as an option with the trade-off, as in

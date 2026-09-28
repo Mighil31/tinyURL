@@ -51,15 +51,15 @@ Decisions:
 - [x] Duplicate long URL behaviour → **new code every time**
 - [x] Request/response shape of `POST /links` → **{url} → 201 + Location, {code, shortUrl, longUrl}**
 
-### Phase 3: API keys + rate limiting (**hand-written core: the rate limiter**)
+### Phase 3: API keys + rate limiting (**hand-written core: the rate limiter**) ✅
 Key seeding, `X-API-Key` check on creation, per-key tiered limiter, 429 with retry info. Ends deployed.
 Decisions:
-- [ ] How keys and tiers are seeded and stored
-- [ ] Auth failure responses (missing vs unknown key)
-- [ ] Rate-limit algorithm
-- [ ] Where limiter state lives (in-memory vs shared)
-- [ ] How "when to retry" is communicated (headers/body)
-- [ ] Whether rejected requests consume quota
+- [x] How keys and tiers are seeded and stored → **`API_KEYS` SECRET env var, parsed at startup**
+- [x] Auth failure responses (missing vs unknown key) → **401 for both**
+- [x] Rate-limit algorithm → **sliding window log**
+- [x] Where limiter state lives (in-memory vs shared) → **in-memory, per instance**
+- [x] How "when to retry" is communicated (headers/body) → **429 + Retry-After + JSON body**
+- [x] Whether rejected requests consume quota → **every authenticated non-429 request counts**
 
 ### Phase 4: Click stats + wrap-up
 Count clicks on redirect, `GET /links/{code}/stats`, final deploy, DECISIONS.md "with more time" closed out.

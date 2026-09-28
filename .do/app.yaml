@@ -30,6 +30,11 @@ services:
         type: SECRET
       - key: DB_SSLMODE
         value: require
+      # key:tier,... encrypted by App Platform; plaintext is never committed
+      - key: API_KEYS
+        type: SECRET
+        scope: RUN_TIME
+        value: EV[1:7L0h6XjNtuieVimuFun9+HAA24yWa4HX:yzmz758XfZKpkJzQUxvqdqz34G5x6jOT6eXkmy+9c/M8sx7RIWEZN8tOnazS8yFnQEPAEsXLXhl4eW/4E16q1nMcOiF5DkGScDT+kZJh/tkM6s2lcVKfLNQKdH3bx59V3DB86of5Jj/IrJSwsiD77iPdD8sMzvR3faqxVo0eIFk=]
 databases:
   - name: tinyurl-db
     engine: PG
