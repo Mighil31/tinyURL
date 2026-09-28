@@ -41,7 +41,7 @@ Decisions:
 - [x] Repo hosting and deploy source for App Platform → **public GitHub repo `Mighil31/tinyURL`, deploy_on_push**
 - [x] App name / component layout in `app.yaml` → **app `tinyurl`, one service `web`, 1 instance, apps-s-1vcpu-0.5gb, blr**
 
-### Phase 2: Create + redirect, persisted
+### Phase 2: Create + redirect, persisted ✅
 `POST /links` (no auth yet), `GET /{code}`, URL validation, storage wired locally and on App Platform. Ends deployed.
 Decisions:
 - [x] Persistent storage choice → **DO Managed Postgres; jdbc + postgresql + Flyway; creds via `databases:` attachment**
