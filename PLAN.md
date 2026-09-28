@@ -2,6 +2,9 @@
 
 **Deploy required: yes.** "Deploy it on DigitalOcean so it's reachable over the public internet" + "a public URL we can curl".
 
+- Live: https://tinyurl-2w4px.ondigitalocean.app (App Platform app `222fa8ca-da0e-4ae4-b5fd-8df6b38aa3d3`)
+- Repo: https://github.com/Mighil31/tinyURL
+
 Budget (3h): ~15 min plan · ~120 min build in phases (incl. ~25 min hand-written core) · ~25 min deploy + verify · ~20 min final read-through.
 
 ## Requirements as I understand them
