@@ -6,10 +6,10 @@
 - Repo: https://github.com/Mighil31/tinyURL
 - Postgres: managed cluster `tinyurl-db` (`16f7bce1-3710-4b93-99c3-2862c7977a15`), blr1, db-s-1vcpu-1gb (~$0.0225/h)
 
-### Teardown by EOD 2026-09-28 (deleting the app does NOT delete the DB)
-- [ ] `doctl apps delete 222fa8ca-da0e-4ae4-b5fd-8df6b38aa3d3`
-- [ ] `doctl databases delete 16f7bce1-3710-4b93-99c3-2862c7977a15`
-- [ ] `doctl apps list` and `doctl databases list` are both empty of tinyurl
+### Teardown by EOD 2026-09-28 (deleting the app does NOT delete the DB) ✅ done 2026-09-28
+- [x] `doctl apps delete 222fa8ca-da0e-4ae4-b5fd-8df6b38aa3d3`
+- [x] `doctl databases delete 16f7bce1-3710-4b93-99c3-2862c7977a15`
+- [x] `doctl apps list` and `doctl databases list` are both empty of tinyurl
 
 Budget (3h): ~15 min plan · ~120 min build in phases (incl. ~25 min hand-written core) · ~25 min deploy + verify · ~20 min final read-through.
 
