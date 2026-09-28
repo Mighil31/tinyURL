@@ -14,3 +14,24 @@ services:
       http_path: /healthz
     routes:
       - path: /
+    envs:
+      - key: BASE_URL
+        value: ${APP_URL}
+      - key: DB_HOST
+        value: ${tinyurl-db.HOSTNAME}
+      - key: DB_PORT
+        value: ${tinyurl-db.PORT}
+      - key: DB_NAME
+        value: ${tinyurl-db.DATABASE}
+      - key: DB_USER
+        value: ${tinyurl-db.USERNAME}
+      - key: DB_PASSWORD
+        value: ${tinyurl-db.PASSWORD}
+        type: SECRET
+      - key: DB_SSLMODE
+        value: require
+databases:
+  - name: tinyurl-db
+    engine: PG
+    production: true
+    cluster_name: tinyurl-db

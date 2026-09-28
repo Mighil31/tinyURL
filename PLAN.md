@@ -4,6 +4,12 @@
 
 - Live: https://tinyurl-2w4px.ondigitalocean.app (App Platform app `222fa8ca-da0e-4ae4-b5fd-8df6b38aa3d3`)
 - Repo: https://github.com/Mighil31/tinyURL
+- Postgres: managed cluster `tinyurl-db` (`16f7bce1-3710-4b93-99c3-2862c7977a15`), blr1, db-s-1vcpu-1gb (~$0.0225/h)
+
+### Teardown by EOD 2026-09-28 (deleting the app does NOT delete the DB)
+- [ ] `doctl apps delete 222fa8ca-da0e-4ae4-b5fd-8df6b38aa3d3`
+- [ ] `doctl databases delete 16f7bce1-3710-4b93-99c3-2862c7977a15`
+- [ ] `doctl apps list` and `doctl databases list` are both empty of tinyurl
 
 Budget (3h): ~15 min plan · ~120 min build in phases (incl. ~25 min hand-written core) · ~25 min deploy + verify · ~20 min final read-through.
 
@@ -38,12 +44,12 @@ Decisions:
 ### Phase 2: Create + redirect, persisted
 `POST /links` (no auth yet), `GET /{code}`, URL validation, storage wired locally and on App Platform. Ends deployed.
 Decisions:
-- [ ] Persistent storage choice
-- [ ] Short-code generation scheme (and collision handling)
-- [ ] URL validation strictness
-- [ ] Redirect status code
-- [ ] Duplicate long URL behaviour
-- [ ] Request/response shape of `POST /links`
+- [x] Persistent storage choice → **DO Managed Postgres; jdbc + postgresql + Flyway; creds via `databases:` attachment**
+- [x] Short-code generation scheme (and collision handling) → **random base62, 7 chars, retry on unique violation**
+- [x] URL validation strictness → **http/https + non-empty host + ≤2048 chars**
+- [x] Redirect status code → **302**
+- [x] Duplicate long URL behaviour → **new code every time**
+- [x] Request/response shape of `POST /links` → **{url} → 201 + Location, {code, shortUrl, longUrl}**
 
 ### Phase 3: API keys + rate limiting (**hand-written core: the rate limiter**)
 Key seeding, `X-API-Key` check on creation, per-key tiered limiter, 429 with retry info. Ends deployed.
